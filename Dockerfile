@@ -1,5 +1,7 @@
 ARG JENKINS_VER=lts
 ARG JENKINS_REGISTRY=jenkins/jenkins
+
+
 FROM ${JENKINS_REGISTRY}:${JENKINS_VER}
 
 # switch to root, let the entrypoint drop back to jenkins
@@ -41,21 +43,22 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - \
  && groupadd -r docker \
  && usermod -aG docker jenkins
 
+# setup jenkins admin user and plugins
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+COPY admin.groovy /usr/share/jenkins/ref/init.groovy.d/security.groovy
+COPY plugin.txt /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+
 # entrypoint is used to update docker gid and revert back to jenkins user
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 HEALTHCHECK CMD curl -sSLf http://localhost:8080/login >/dev/null || exit 1
 
-ARG BUILD_DATE
-ARG VCS_REF
-ARG IMAGE_PATCH_VER=0
 LABEL \
-    org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.docker.cmd="docker run -d -p 8080:8080 -v \"/opt/jenkins_home:/var/jenkins_home\" -v /var/run/docker.sock:/var/run/docker.sock dhileepbalaji/jenkins-docker" \
     org.label-schema.description="Jenkins with docker support, Jenkins ${JENKINS_VER}, Docker ${DOCKER_VER}" \
     org.label-schema.name="dhileepbalaji/jenkins-docker" \
     org.label-schema.schema-version="1.0" \
     org.label-schema.url="https://github.com/dhileepbalaji/jenkins-docker" \
-    org.label-schema.version="${JENKINS_VER}-${IMAGE_PATCH_VER}"
 

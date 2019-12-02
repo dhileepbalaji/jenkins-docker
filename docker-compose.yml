@@ -4,10 +4,11 @@ services:
     image: dhileepbalaji/jenkins-docker-compose:latest
     restart: unless-stopped
     ports:
-      - "8080:1443"
+      - "1443:8080"
     volumes:
-      - /opt/jenkins_home:/var/jenkins_home
+      - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     container_name: jenkins-docker
-        
 
+volumes:
+  jenkins_home:
