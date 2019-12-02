@@ -1,0 +1,13 @@
+version: '3.7'
+services:
+  jenkins:
+    image: localhost:5000/jenkins-docker
+    restart: unless-stopped
+    ports:
+      - "8080:1443"
+    volumes:
+      - /opt/jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_name: jenkins-docker
+        
+
