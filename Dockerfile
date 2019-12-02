@@ -28,18 +28,10 @@ RUN dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
  && gosu nobody true 
 
 # install docker
-ARG DOCKER_CLI_VERSION==5:19.03.0~3-0~debian-stretch
-# ARG DOCKER_CLI_VERSION=
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - \
- && add-apt-repository \
-     "deb [arch=amd64] https://download.docker.com/linux/debian \
-     $(lsb_release -cs) \
-     stable" \
- && apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    docker-ce-cli${DOCKER_CLI_VERSION} \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/* \
+RUN curl -fsSL get.docker.com -o get-docker.sh \
+ && sudo sh get-docker.sh \
+ && sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose \
+ && sudo chmod +x /usr/local/bin/docker-compose \
  && groupadd -r docker \
  && usermod -aG docker jenkins
 
